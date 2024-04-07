@@ -1,0 +1,3 @@
+/Users/adanmatute/Desktop/CSC-630-Fin/chess/build/CMakeFiles/P2B.dir
+/Users/adanmatute/Desktop/CSC-630-Fin/chess/build/CMakeFiles/edit_cache.dir
+/Users/adanmatute/Desktop/CSC-630-Fin/chess/build/CMakeFiles/rebuild_cache.dir
