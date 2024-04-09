@@ -70,6 +70,10 @@ curr.restype = POINTER(Node)
 sel = libboard.getSEL
 sel.restype = POINTER(Node)
 
+# moveHelperRET = libboard.moveHelperRET
+# moveHelperRET.argtypes = [c_int, POINTER(Node)]
+# moveHelperRET.restype = POINTER(Node)
+
 
 def printMap_wrapper():
     return printMap()

@@ -89,6 +89,7 @@ extern "C" {
 	Node* getBR();
 	Node* getCURR();
 	Node* getSEL();
+	Node* moveHelperRET(int m, Node * n);
 }
 
 
@@ -380,7 +381,107 @@ void nodeDataPrintout(Node* node) {
 	}
 }
 
-int uu, dd, ll, rr, nn;
+
+// void moveHelper(int m, Node * n) {
+// 	switch (m) {
+// 			case 1: {
+// 				if(n->up != NULL) {
+// 					n = n->up;
+// 				}
+// 				break;
+// 			}
+// 			case 2: {
+// 				if(n->down != NULL) {
+// 					n = n->down;
+// 				}
+// 				break;
+// 			}
+// 			case 3: {
+// 				if(n->left != NULL) {
+// 					n = n->left;
+// 				}
+// 				break;
+// 			}
+// 			case 4: {
+// 				if(n->right != NULL) {
+// 					n = n->right;
+// 				}
+// 				break;
+// 			}
+// 			case 5: {
+// 				if(selected == NULL && n->piecePresent) {
+// 					selected = n;
+// 				}
+// 				else if(selected != NULL && n->landingSpot) {
+// 					movedPiece();
+// 					selected = NULL;
+// 				}
+// 				break;
+// 			}
+// 			case 6: {
+// 				if(selected != NULL) {
+// 					n = selected;
+// 					selected = NULL;
+// 				}
+// 				break;
+// 			}
+// 		}
+// }
+
+
+
+
+
+
+
+Node * moveHelperRET(int m, Node * n) {
+	switch (m) {
+			case 1: {
+				if(n->up != NULL) {
+					n = n->up;
+				}
+				break;
+			}
+			case 2: {
+				if(n->down != NULL) {
+					n = n->down;
+				}
+				break;
+			}
+			case 3: {
+				if(n->left != NULL) {
+					n = n->left;
+				}
+				break;
+			}
+			case 4: {
+				if(n->right != NULL) {
+					n = n->right;
+				}
+				break;
+			}
+			case 5: {
+				if(selected == NULL && n->piecePresent) {
+					selected = n;
+				}
+				else if(selected != NULL && n->landingSpot) {
+					movedPiece();
+					selected = NULL;
+				}
+				break;
+			}
+			case 6: {
+				if(selected != NULL) {
+					n = selected;
+					selected = NULL;
+				}
+				break;
+			}
+		}
+
+	return n;
+}
+
 
 Node* movingAround(Node* node) {
 	using namespace this_thread;
@@ -393,77 +494,9 @@ Node* movingAround(Node* node) {
 	nodeDataPrintout(node);
 	int ccc = 1;
 	cin >> movement;
-	// if (argCount != 1) {string h = arguments[ccc++];movement = int(h.at(0)-48);} else {cin >> movement;}
 	while(movement != 0) {
-		switch (movement) {
-			case 1: {
-				if(node->up != NULL) {
-					++uu;
-					node = node->up;
-				}
-				else {
-					cout << "\t\tup is null" << endl;
-				}
-				break;
-			}
-			case 2: {
-				if(node->down != NULL) {
-					++dd;
-					node = node->down;
-				}
-				else {
-					cout << "\t\tdown is null" << endl;
-				}
-				break;
-			}
-			case 3: {
-				if(node->left != NULL) {
-					++ll;
-					node = node->left;
-				}
-				else {
-					cout << "\t\tleft is null" << endl;
-				}
-				break;
-			}
-			case 4: {
-				if(node->right != NULL) {
-					++rr;
-					node = node->right;
-				}
-				else {
-					cout << "\t\tright is null" << endl;
-				}
-				break;
-			}
-			case 5: {
-				if(selected == NULL && node->piecePresent) {
-					cout << "selected" << endl;
-					selected = node;
-				}
-				else if(selected != NULL && node->landingSpot) {
-					movedPiece();
-					selected = NULL;
-					cout << "entered" << endl;
-				} else {
-					cout << "invalid option" << endl;
-				}
-				break;
-			}
-			case 6: {
-				if(selected != NULL) {
-					cout << "deselected" << endl;
-					node = selected;
-					selected = NULL;
-				}
-				break;
-			}
-			default: {
-				++nn;
-				cout << "invalid entry" << endl;
-				break;
-			}
-		}
+		
+		node = moveHelperRET(movement, node);
 
 		sleep_for(milliseconds(500));
 
@@ -473,14 +506,8 @@ Node* movingAround(Node* node) {
 		cout << "1->up\t2->down\t3->left\t4->right\n5->select\t6->deselect\t0->exit\n" << endl;
 		printMap();
 		nodeDataPrintout(node);
-		if (argCount != 1) {string h = arguments[ccc++];movement = int(h.at(0)-48);} else {cin >> movement;}
+		cin >> movement;
 
-
-		cout << "up: " << uu << endl;
-		cout << "down: " << dd << endl;
-		cout << "left: " << ll << endl;
-		cout << "right: " << rr << endl;
-		cout << "null: " << nn << endl;
 	}
 
 	cout << "exiting" << endl;
@@ -524,20 +551,24 @@ public:
 
 	// Shape to be used (from obj file)
 	shared_ptr<Shape> shape;
+	shared_ptr<Shape> cube;
 
 	// location
-	shared_ptr<Shape> SmoothSphere, PKMNC, platform;
+	// shared_ptr<Shape> SmoothSphere, PKMNC, platform;
 
-	// pokemon
-	shared_ptr<Shape> MMK, PKCH, ZUBAT;
+	// // pokemon
+	// shared_ptr<Shape> MMK, PKCH, ZUBAT;
 
-	// wind turbine pieces
-	shared_ptr<Shape> WTStick, WTEng, WTSpin, WTBlade, WTFoundation;
+	// // wind turbine pieces
+	// shared_ptr<Shape> WTStick, WTEng, WTSpin, WTBlade, WTFoundation;
 
-	// plant
-	shared_ptr<Shape> P1;
+	// // plant
+	// shared_ptr<Shape> P1;
 
-	Node * playerA1, playerA2, playerB1, playerB2;
+	Node * playerA1 = nullptr;
+	Node * playerA2 = nullptr;
+	Node * playerB1 = nullptr;
+	Node * playerB2 = nullptr;
 
 	// Contains vertex information for OpenGL
 	GLuint VertexArrayID;
@@ -555,44 +586,143 @@ public:
 
 	bool turn = true;
 
+	float x = 0, y = 0, z = 0;
+
+
 	void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 
-		// if(key = GLFW_KEY_W && action == GLFW_RELEASE) {
-		// 	if(turn) {
-				
-		// 	} else {
-				
-		// 	}
-		// }
-		// if(key = GLFW_KEY_A && action == GLFW_RELEASE) {
-		// 	if(turn) {
+		if(key == GLFW_KEY_W && action == GLFW_RELEASE) {
+			cout << "\033[2J\033[1;1H";
+			if(turn) {
+				playerA1 = moveHelperRET(1, playerA1);
+				curr = playerA1;
+				printMap();
+				nodeDataPrintout(playerA1);
+			} else {
+				playerB1 = moveHelperRET(1, playerB1);
+				curr = playerB1;
+				printMap();
+				nodeDataPrintout(playerB1);
+			}
+		}
+		if(key == GLFW_KEY_A && action == GLFW_RELEASE) {
+			cout << "\033[2J\033[1;1H";
+			if(turn) {
+				playerA1 = moveHelperRET(3, playerA1);
+				curr = playerA1;
+				printMap();
+				nodeDataPrintout(playerA1);
+			} else {
+				playerB1 = moveHelperRET(3, playerB1);
+				curr = playerB1;
+				printMap();
+				nodeDataPrintout(playerB1);
+			}
+		}
+		if(key == GLFW_KEY_S && action == GLFW_RELEASE) {
+			cout << "\033[2J\033[1;1H";
+			if(turn) {
+				playerA1 = moveHelperRET(2, playerA1);
+				curr = playerA1;
+				printMap();
+				nodeDataPrintout(playerA1);
+			} else {
+				playerB1 = moveHelperRET(2, playerB1);
+				curr = playerB1;
+				printMap();
+				nodeDataPrintout(playerB1);
+			}
+		}
+		if(key == GLFW_KEY_D && action == GLFW_RELEASE) {
+			cout << "\033[2J\033[1;1H";
+			if(turn) {
+				playerA1 = moveHelperRET(4, playerA1);
+				curr = playerA1;
+				printMap();
+				nodeDataPrintout(playerA1);
+			} else {
+				playerB1 = moveHelperRET(4, playerB1);
+				curr = playerB1;
+				printMap();
+				nodeDataPrintout(playerB1);
+			}
+		}
 
-		// 	} else {
-				
-		// 	}
-		// }
-		// if(key = GLFW_KEY_S && action == GLFW_RELEASE) {
-		// 	if(turn) {
 
-		// 	} else {
-				
-		// 	}
-		// }
-		// if(key = GLFW_KEY_D && action == GLFW_RELEASE) {
-		// 	if(turn) {
-
-		// 	} else {
-				
-		// 	}
-		// }
+		if(key == GLFW_KEY_O && action == GLFW_RELEASE) {
+			cout << "\033[2J\033[1;1H";
+			if(turn) {
+				playerA1 = moveHelperRET(5, playerA1);
+				printMap();
+				nodeDataPrintout(playerA1);
+			} else {
+				playerB1 = moveHelperRET(5, playerB1);
+				printMap();
+				nodeDataPrintout(playerB1);
+			}
+		}
+		if(key == GLFW_KEY_P && action == GLFW_RELEASE) {
+			cout << "\033[2J\033[1;1H";
+			if(turn) {
+				playerA1 = moveHelperRET(6, playerA1);
+				curr = playerA1;
+				printMap();
+				nodeDataPrintout(playerA1);
+			} else {
+				playerB1 = moveHelperRET(6, playerB1);
+				curr = playerB1;
+				printMap();
+				nodeDataPrintout(playerB1);
+			}
+		}
 
 		if(key == GLFW_KEY_SPACE && action == GLFW_RELEASE) {
 			turn = !turn;
-			cout << turn << endl;
+			curr = turn ? playerA1 : playerB1;
+			cout << "\033[2J\033[1;1H";
+			printMap();
+			nodeDataPrintout(turn ? playerA1 : playerB1);
+		}
+
+
+		
+		if(key == GLFW_KEY_G && action == GLFW_RELEASE) {
+			++x;
+		}
+		if(key == GLFW_KEY_B && action == GLFW_RELEASE) {
+			--x;
+		}
+
+		
+		if(key == GLFW_KEY_H && action == GLFW_RELEASE) {
+			++y;
+		}
+		if(key == GLFW_KEY_N && action == GLFW_RELEASE) {
+			--y;
+		}
+		
+		if(key == GLFW_KEY_J && action == GLFW_RELEASE) {
+			++z;
+		}
+		if(key == GLFW_KEY_M && action == GLFW_RELEASE) {
+			--z;
+		}
+
+		if(key == GLFW_KEY_ENTER && action == GLFW_RELEASE) {
+			cout << "x is: " << x << endl; 
+			cout << "y is: " << y << endl; 
+			cout << "z is: " << z << endl; 
+		}
+
+		if (key == GLFW_KEY_0 && action == GLFW_PRESS) {
+			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+		}
+		if (key == GLFW_KEY_0 && action == GLFW_RELEASE) {
+			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		}
 	}
 
@@ -617,7 +747,7 @@ public:
 		GLSL::checkVersion();
 
 		// Set background color.
-		glClearColor(0.90f, .62f, .0f, 1.0f);
+		glClearColor(0.90f, .53f, .49f, 0.81f); // 135, 125, 206
 		// Enable z-buffer test.
 		glEnable(GL_DEPTH_TEST);
 
@@ -639,6 +769,18 @@ public:
 		prog->addAttribute("vertPos");
 		prog->addAttribute("vertNor");
 		prog->addAttribute("vertTex");
+
+		nodePopulation();
+
+		playerA1 = topLeft;
+		playerB1 = bottomRight;
+		
+		cout << "\033[2J\033[1;1H";
+		curr = turn ? playerA1 : playerB1;
+		printMap();
+		nodeDataPrintout(turn ? playerA1 : playerB1);
+		// nodeDataPrintout(playerA1);
+		// nodeDataPrintout(playerB1);
 	}
 
 	// changed into a helper function to help loading all the objects used in the program
@@ -652,19 +794,20 @@ public:
 
 	// loads all objects and stores them in their respective shared_ptr<Shape> handles
 	void initObjects(const std::string & objDir) {
-		initGeom(objDir, "/SmoothSphere.obj", SmoothSphere);
-		initGeom(objDir, "/PC/pokemoncenter.obj", PKMNC);
-		initGeom(objDir, "/PC/platform.obj", platform);
-		initGeom(objDir, "/PKMN/MMK.obj", MMK);
-		initGeom(objDir, "/PKMN/PKCH.obj", PKCH);
-		initGeom(objDir, "/PKMN/ZUBAT.obj", ZUBAT);
-		initGeom(objDir, "/wt/WTStick.obj", WTStick);
-		initGeom(objDir, "/wt/WTEng.obj", WTEng);
-		initGeom(objDir, "/wt/WTSpin.obj", WTSpin);
-		initGeom(objDir, "/wt/WTBlade.obj", WTBlade);
-		initGeom(objDir, "/wt/WTFoundation.obj", WTFoundation);
-		initGeom(objDir, "/plants/plant1.obj", P1);
-
+		// initGeom(objDir, "/SmoothSphere.obj", SmoothSphere);
+		// initGeom(objDir, "/PC/pokemoncenter.obj", PKMNC);
+		// initGeom(objDir, "/PC/platform.obj", platform);
+		// initGeom(objDir, "/PKMN/MMK.obj", MMK);
+		// initGeom(objDir, "/PKMN/PKCH.obj", PKCH);
+		// initGeom(objDir, "/PKMN/ZUBAT.obj", ZUBAT);
+		// initGeom(objDir, "/wt/WTStick.obj", WTStick);
+		// initGeom(objDir, "/wt/WTEng.obj", WTEng);
+		// initGeom(objDir, "/wt/WTSpin.obj", WTSpin);
+		// initGeom(objDir, "/wt/WTBlade.obj", WTBlade);
+		// initGeom(objDir, "/wt/WTFoundation.obj", WTFoundation);
+		// initGeom(objDir, "/plants/plant1.obj", P1);
+		initGeom(objDir, "/cube.obj", cube);
+		
 	}
 
 	void SetMaterial(int i) {
@@ -699,152 +842,14 @@ public:
 				break;
 			case 9: // gray-yellow
     			glUniform3f(prog->getUniform("MatAmb"), 0.40, 0.45, 0.30);
+			case 10:
+    			glUniform3f(prog->getUniform("MatAmb"), 1, 1, 1);
+			case 11:
+    			glUniform3f(prog->getUniform("MatAmb"), 0, 0, 0);
+
   		}
 	}
 
-
-
-	void loadWT(shared_ptr<MatrixStack> mod, float a1, float a2, float a3, float a4, float a5) {
-		mod->pushMatrix();
-			mod->rotate(1, vec3(1, 0, 1));
-
-			// turbine stick
-			mod->pushMatrix();
-				shape = WTStick;
-				mod->translate(vec3(0, a5, 0));
-				mod->scale(vec3(0.15, 0.15, 0.15));
-				mod->rotate(a1, vec3(a2, a3, a4));
-				SetMaterial(5);
-				glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(mod->topMatrix()));
-				shape->draw(prog);
-
-				// top block piece
-				mod->pushMatrix();
-					shape = WTEng;
-					mod->translate(vec3(-0.05, 1.1, 0));
-					mod->scale(vec3(0.25, 0.25, 0.25));
-					mod->rotate(-1.5 + cos(animRot/2)/5, vec3(0, 1, 0));
-					SetMaterial(5);
-					glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(mod->topMatrix()));
-					shape->draw(prog);
-
-					// blade turning piece
-					mod->pushMatrix();
-						shape = WTSpin;
-						mod->translate(vec3(1.3, 0, 0));
-						mod->rotate(-animRot, vec3(1, 0, 0));
-						mod->scale(vec3(0.3, 0.3, 0.3));
-						SetMaterial(6);
-						glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(mod->topMatrix()));
-						shape->draw(prog);
-
-						mod->pushMatrix();
-							shape = WTBlade;
-							mod->translate(vec3(-0.4, 2.75, -1.3));
-							mod->scale(vec3(13, 13, 13));
-							SetMaterial(1);
-							glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(mod->topMatrix()));
-							shape->draw(prog);
-						mod->popMatrix();
-					mod->popMatrix();
-				mod->popMatrix();
-
-				// base plate
-				mod->pushMatrix();
-					shape = WTFoundation;
-					mod->translate(vec3(0, -1.05, 0));
-					mod->scale(vec3(0.25, 0.25, 0.25));
-					SetMaterial(1);
-					glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(mod->topMatrix()));
-					shape->draw(prog);
-				mod->popMatrix();
-			mod->popMatrix();
-		mod->popMatrix();
-	}
-
-	void loadPKMNC(shared_ptr<MatrixStack> mod) {
-		mod->pushMatrix();
-			mod->rotate(0.75, vec3(2.05, 3.4, 3.45));
-			shape = PKMNC;
-			mod->translate(vec3(0, 1.175, 0));
-			mod->scale(vec3(0.35, 0.35, 0.35));
-			mod->rotate(1.7, vec3(0, 1, 0));
-			SetMaterial(3);
-			glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(mod->topMatrix()));
-			shape->draw(prog);
-
-			mod->pushMatrix();
-				shape = platform;
-				mod->translate(vec3(0, -0.725, 0));
-				mod->scale(vec3(0.82, 8.6, 2.3));
-				SetMaterial(1);
-				glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(mod->topMatrix()));
-				shape->draw(prog);
-			mod->popMatrix();
-		mod->popMatrix();
-	}
-
-	void loadPKMN(shared_ptr<MatrixStack> mod) {
-
-		// loads pikachu
-		mod->pushMatrix();
-			mod->rotate(0.95, vec3(9.15, 3.85, 3.4));
-			shape = PKCH;
-			mod->rotate(3+animRot/5, vec3(0, 11, 1));
-			mod->translate(vec3(-0.05, 1.15+((sin(animRot)+1)/(15)), 0));
-			mod->scale(vec3(0.15, 0.15, 0.15));
-			mod->rotate(6, vec3(0, 1, 0));
-			SetMaterial(2);
-			glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(mod->topMatrix()));
-			shape->draw(prog);
-		mod->popMatrix();
-
-		// loads Mimikyu
-		mod->pushMatrix();
-			mod->rotate(0.95, vec3(9.15, 3.85, 3.4));
-			shape = MMK;
-			mod->rotate(animRot/5, vec3(0, 11, 1));
-			mod->translate(vec3(-0.05, 1.15+((cos(animRot)+1)/(15)), 0));
-			mod->scale(vec3(0.15, 0.15, 0.15));
-			mod->rotate(4.3, vec3(0, 1, 0));
-			SetMaterial(9);
-			glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(mod->topMatrix()));
-			shape->draw(prog);
-		mod->popMatrix();
-
-		// loads zubats
-		glUniform1f(prog->getUniform("bendAmount"), ((0.9*cos(animRot/(-0.7)))/(1.3)));
-		for(int i = 0; i < 9; i+=4) {
-			mod->pushMatrix();
-				mod->rotate(1, vec3(0.1, 0.1, -0.1));
-				shape = ZUBAT;
-				mod->rotate(i+animRot/5, vec3(0.2, -0.5, 0.2));
-				mod->translate(vec3(0, 1.5, 0));
-				mod->scale(vec3(0.1, 0.1, 0.1));
-				mod->rotate(1, vec3(1, 0, 0));
-				mod->rotate(0.4, vec3(0, 1, 0));
-				mod->rotate(0.5, vec3(0, 0, 1));
-				SetMaterial(8);
-				glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(mod->topMatrix()));
-				shape->draw(prog);
-			mod->popMatrix();
-		}
-		glUniform1f(prog->getUniform("bendAmount"), 0);
-	}
-
-	void loadPlant(shared_ptr<MatrixStack> mod, float a1, float a2, float a3, float a4) {
-		mod->pushMatrix();
-			mod->rotate(a1, vec3(a2, a3, a4));
-			mod->pushMatrix();
-				shape = P1;
-				mod->translate(vec3(0, 1.03, 0));
-				mod->scale(vec3(0.05, 0.05, 0.05));
-				SetMaterial(7);
-				glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(mod->topMatrix()));
-				shape->draw(prog);
-			mod->popMatrix();
-		mod->popMatrix();
-	}
 
 	void render()
 	{
@@ -880,43 +885,34 @@ public:
 		glUniform3f(prog->getUniform("LightDir"), 2, 1.5, 0);	// used for shading in one mode
 		glUniform1i(prog->getUniform("colorMode"), colorMode);	// used to switch colors around 
 		
-		glUniform3f(prog->getUniform("lightP"), lightTrans+2, 3, 4);
+		glUniform3f(prog->getUniform("lightP"), 1, 1, 1);
+		// glUniform3f(prog->getUniform("lightP"), lightTrans+2, 3, 4);
 
 		// if (animate) animRot += 0.025;
 
 		Model->pushMatrix();
-			//global rotate (the whole scene)
-			// Model->rotate(gRot, vec3(0, 1, 0));
+			Model->rotate(gRot, vec3(0, 1, 0));
 
-			// // sphere center to place all other objects around
-			// shape = SmoothSphere;
-			// Model->translate(vec3(0, -5, -11 + gTrans));
-			// Model->scale(vec3(5.7, 5.7, 5.7));
-			// Model->rotate(-0.1 + sin(animRot/3)/10, vec3(0, 0, 1));
-			// SetMaterial(0);
-			// glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(Model->topMatrix()));
-			// shape->draw(prog);
+		Model->pushMatrix();
+			Model->rotate(gRot, vec3(0, 1, 0));
+			shape = cube;
+			for (int i = 0; i < 8+x; i++) {
+				for (int j = 0; j < 8+y; j++) {
+					Model->pushMatrix();
+						Model->translate(vec3((-2.625+(2.0/(2.678125))*(7-i)), -2+y, -5+gTrans-((2.0/(2.678125))*(8-j))));
+						// Model->translate(vec3((-3+(2.0/(2.678125))*i), -2+y, -5+gTrans+(j*(-1+z))));
+						Model->scale(vec3(0.375, 0.025, 0.375));
+						SetMaterial((10+(i+j))%2);
+						glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(Model->topMatrix()));
+						shape->draw(prog);
+					Model->popMatrix();
+				}
+			}
+		Model->popMatrix();
 
-			// // loads wind turbine
-			// loadWT(Model, 1, 0, 0.8, 0.05, 1.175);
-
-			// // loads PMKN center
-			// loadPKMNC(Model);
-
-			// // loads PKMN
-			// loadPKMN(Model);
-
-			// // loads plants
-			// Model->pushMatrix();
-			// 	for(int j = 0; j < 17; ++j) {
-			// 		for(int i = 1; i < 17; ++i) {
-			// 			Model->rotate(j, vec3(0, 1, 0));
-			// 			loadPlant(Model, (0.2)*i, (-0.95)*j, (2.45)*j, (5.3)*j);
-			// 		}
-
-			// 	}
-			// Model->popMatrix();
-
+		// cout << "\033[2J\033[1;1H";
+		// printMap();
+		// nodeDataPrintout(turn ? playerA1 : playerB1);
 
 		Model->popMatrix();
 
@@ -965,8 +961,6 @@ public:
 
 
 int main(int argc, char ** argv) {
-	arguments = argv;
-	argCount = argc;
 
 	Application *application = new Application();
 	
@@ -974,16 +968,11 @@ int main(int argc, char ** argv) {
 	windowManager->init(1280, 800);
 	windowManager->setEventCallbacks(application);
 	application->windowManager = windowManager;
-
 	
 	application->init("../resources");
 	application->initObjects("../resources");
 
 	cout << "\033[2J\033[1;1H";
-
-	// nodePopulation();
-
-	// movingAround(topLeft);
 
 	// Loop until the user closes the window.
 	while (! glfwWindowShouldClose(windowManager->getHandle()))
