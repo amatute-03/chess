@@ -7,6 +7,7 @@ class piece {
         void setPieceType(char type);
         char getPieceType();
         void setMoveType(int type);
+        int getMoveVal();
         vector<vector<string>> getMoveType();
         void setSide(int s);
         int getSide();

@@ -15,6 +15,10 @@ void piece::setMoveType(int type) {
 	this->moveType = type;
 }
 
+int piece::getMoveVal() {
+	return this->moveType;
+}
+
 vector<vector<string>> piece::getMoveType() {
 	if(movements.size() == 0) {
 		initMovements();
