@@ -17,7 +17,6 @@
 
 
 #include <chrono>
-// #include <iostream>
 #include <thread>
 #include <stdio.h>
 #include "piece.h"
@@ -43,44 +42,12 @@ struct Node {
 	struct Node* right = NULL;
 };
 
-
-
-// #include <chrono>
-// #include <iostream>
-// #include <thread>
-// #include <stdio.h>
-// #include "piece.h"
-
-
-// using namespace std;
-
-// struct Node {
-// 	char info;
-// 	bool piecePresent;
-// 	piece *pieceHeld = new piece;
-
-// 	int xOffset;
-// 	int yOffset;
-// 	bool landingSpot;
-// 	struct Node* up = NULL;
-// 	struct Node* down = NULL;
-// 	struct Node* left = NULL;
-// 	struct Node* right = NULL;
-// };
-
-// void printMap();
-// void nodeDataPrintout(Node* node);
-// Node* movingAround(Node* node);
-// void nodePopulation();
-// void usePiece(Node* node);
-
 extern "C" {
     void printMap();
-    void nodeDataPrintout(Node* node);
-    Node* movingAround(Node* node);
     void nodePopulation();
     void usePiece(Node* node);
-	Node* nodeCreation();
+	void nodeCreation();
+	// Node* nodeCreation();
 	bool inPath(Node* node);
 	void movedPiece();
 	Node* getTL();
@@ -140,8 +107,8 @@ char sym[] = {'r', 'k', 'b', 'K', 'Q', 'b', 'k', 'r',
 			  'r', 'k', 'b', 'K', 'Q', 'b', 'k', 'r'};
 int PieceSetUp = 0;
 
-Node* nodeCreation() {
-	Node* rowPtr = topLeft;
+void nodeCreation() {
+// Node* nodeCreation() {
 	Node* temp = new Node;
 	temp->landingSpot = false;
 
@@ -187,7 +154,6 @@ Node* nodeCreation() {
 		while(tempA->down != NULL) {
 			tempA = tempA->down;
 		}
-		Node* tempB = tempA;
 		temp->up = tempA;
 		tempA->down = temp;
 		if(tempA->left != NULL) {
@@ -211,14 +177,13 @@ Node* nodeCreation() {
 		++row;
 	}
 
-	return temp;
+	// return temp;
 }
 
 void nodePopulation() {
-	Node* hold;
 	for(int i = 0; i < 8; ++i) {
 		for(int j = 0; j < 8; ++j) {
-			hold = nodeCreation();
+			nodeCreation();
 		}
 	}
 }
@@ -227,8 +192,6 @@ void usePiece(Node* node) {
 	node->piecePresent = true;
 }
 
-int argCount = 1;
-char ** arguments = NULL;
 
 
 
@@ -363,79 +326,6 @@ void printMap() {
 }
 
 
-
-void nodeDataPrintout(Node* node) {
-	if(node != NULL) {
-		cout << "\tnode: " << node->info;
-		printf("\n\tside: %d\n", node->piecePresent != NULL ? node->pieceHeld->getSide() : -1);
-
-		printf("\n\t%4c\n", node->up != NULL ? node->up->info : '-');
-		printf("\t%2c", node->left != NULL ? node->left->info : '-');
-		printf("%4c\n", node->right != NULL ? node->right->info : '-');
-		printf("\t%4c", node->down != NULL ? node->down->info : '-');
-
-		printf("\n\nselected: %c", selected != NULL ? selected->pieceHeld->getPieceType() : '-');
-
-
-		cout << "\n\n\tpiece: " << node->piecePresent << endl;
-		cout << "\n\tcolumn: " << node->xOffset;
-		cout << "\n\trow: " << node->yOffset<< endl << endl;
-	}
-}
-
-
-// void moveHelper(int m, Node * n) {
-// 	switch (m) {
-// 			case 1: {
-// 				if(n->up != NULL) {
-// 					n = n->up;
-// 				}
-// 				break;
-// 			}
-// 			case 2: {
-// 				if(n->down != NULL) {
-// 					n = n->down;
-// 				}
-// 				break;
-// 			}
-// 			case 3: {
-// 				if(n->left != NULL) {
-// 					n = n->left;
-// 				}
-// 				break;
-// 			}
-// 			case 4: {
-// 				if(n->right != NULL) {
-// 					n = n->right;
-// 				}
-// 				break;
-// 			}
-// 			case 5: {
-// 				if(selected == NULL && n->piecePresent) {
-// 					selected = n;
-// 				}
-// 				else if(selected != NULL && n->landingSpot) {
-// 					movedPiece();
-// 					selected = NULL;
-// 				}
-// 				break;
-// 			}
-// 			case 6: {
-// 				if(selected != NULL) {
-// 					n = selected;
-// 					selected = NULL;
-// 				}
-// 				break;
-// 			}
-// 		}
-// }
-
-
-
-
-
-
-
 Node * moveHelperRET(int m, Node * n) {
 	switch (m) {
 			case 1: {
@@ -486,39 +376,6 @@ Node * moveHelperRET(int m, Node * n) {
 }
 
 
-Node* movingAround(Node* node) {
-	using namespace this_thread;
-	using namespace chrono;
-
-	curr = node;
-	int movement;
-	cout << "1->up\t2->down\t3->left\t4->right\n5->select\t6->deselect\t0->exit\n" << endl;
-	printMap();
-	nodeDataPrintout(node);
-	int ccc = 1;
-	cin >> movement;
-	while(movement != 0) {
-		
-		node = moveHelperRET(movement, node);
-
-		sleep_for(milliseconds(500));
-
-		cout << "\033[2J\033[1;1H";
-
-		curr = node;
-		cout << "1->up\t2->down\t3->left\t4->right\n5->select\t6->deselect\t0->exit\n" << endl;
-		printMap();
-		nodeDataPrintout(node);
-		cin >> movement;
-
-	}
-
-	cout << "exiting" << endl;
-	return node;
-}
-
-
-
 string getPieceShape(int i, int j) {
 	string out = "  ";
 	Node * helper = topLeft;
@@ -528,7 +385,7 @@ string getPieceShape(int i, int j) {
 	for(int b = 0; b < j; ++b) {
 		helper = helper->down;
 	}
-	if (!helper->piecePresent) {
+	if (helper->piecePresent == 0) {
 		out[0] = '6';
 		out[1] = '0';
 		return out;
@@ -537,26 +394,6 @@ string getPieceShape(int i, int j) {
 	out[1] = char(helper->pieceHeld->getSide());
 	return out;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class Application : public EventCallbacks
@@ -571,7 +408,8 @@ public:
 
 	// Shape to be used (from obj file)
 	shared_ptr<Shape> shape;
-	shared_ptr<Shape> cube, SmoothSphere;
+	shared_ptr<Shape> pawn, rook, knight, bishop, king, queen;
+	shared_ptr<Shape> cube;
 
 	Node * playerA1 = nullptr;
 	// Node * playerA2 = nullptr;
@@ -593,7 +431,7 @@ public:
 	int colorMode = 0;
 
 
-	float x = 0, y = 0, z = 0;
+	float x = 0, y = 0, z = 0, l = 0, m = 0, o = 0, p = 0;
 
 
 	void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -705,16 +543,46 @@ public:
 			--z;
 		}
 
+
+		if(key == GLFW_KEY_K && action == GLFW_RELEASE) {
+			++l;
+		}
+		if(key == GLFW_KEY_COMMA && action == GLFW_RELEASE) {
+			--l;
+		}
+		if(key == GLFW_KEY_L && action == GLFW_RELEASE) {
+			++m;
+		}
+		if(key == GLFW_KEY_PERIOD && action == GLFW_RELEASE) {
+			--m;
+		}
+		if(key == GLFW_KEY_SEMICOLON && action == GLFW_RELEASE) {
+			++o;
+		}
+		if(key == GLFW_KEY_BACKSLASH && action == GLFW_RELEASE) {
+			--o;
+		}
+		if(key == GLFW_KEY_LEFT_BRACKET && action == GLFW_RELEASE) {
+			++p;
+		}
+		if(key == GLFW_KEY_RIGHT_BRACKET && action == GLFW_RELEASE) {
+			--p;
+		}
+
 		if(key == GLFW_KEY_ENTER && action == GLFW_RELEASE) {
 			cout << "x is: " << x << endl; 
 			cout << "y is: " << y << endl; 
 			cout << "z is: " << z << endl; 
+			cout << "l is: " << l << endl; 
+			cout << "m is: " << m << endl; 
+			cout << "o is: " << o << endl; 
+			cout << "p is: " << p << endl; 
 		}
 
-		if (key == GLFW_KEY_0 && action == GLFW_PRESS) {
+		if (key == GLFW_KEY_Z && action == GLFW_PRESS) {
 			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 		}
-		if (key == GLFW_KEY_0 && action == GLFW_RELEASE) {
+		if (key == GLFW_KEY_Z && action == GLFW_RELEASE) {
 			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		}
 	}
@@ -765,13 +633,13 @@ public:
 
 		nodePopulation();
 
-		playerA1 = topLeft;
-		playerB1 = bottomRight;
+		playerA1 = getTL();
+		playerB1 = getBR();
 		
 		cout << "\033[2J\033[1;1H";
 		curr = turn ? playerA1 : playerB1;
 		printMap();
-		nodeDataPrintout(turn ? playerA1 : playerB1);
+		// nodeDataPrintout(turn ? playerA1 : playerB1);
 		// nodeDataPrintout(playerA1);
 		// nodeDataPrintout(playerB1);
 	}
@@ -787,20 +655,13 @@ public:
 
 	// loads all objects and stores them in their respective shared_ptr<Shape> handles
 	void initObjects(const std::string & objDir) {
-		// initGeom(objDir, "/SmoothSphere.obj", SmoothSphere);
-		// initGeom(objDir, "/PC/pokemoncenter.obj", PKMNC);
-		// initGeom(objDir, "/PC/platform.obj", platform);
-		// initGeom(objDir, "/PKMN/MMK.obj", MMK);
-		// initGeom(objDir, "/PKMN/PKCH.obj", PKCH);
-		// initGeom(objDir, "/PKMN/ZUBAT.obj", ZUBAT);
-		// initGeom(objDir, "/wt/WTStick.obj", WTStick);
-		// initGeom(objDir, "/wt/WTEng.obj", WTEng);
-		// initGeom(objDir, "/wt/WTSpin.obj", WTSpin);
-		// initGeom(objDir, "/wt/WTBlade.obj", WTBlade);
-		// initGeom(objDir, "/wt/WTFoundation.obj", WTFoundation);
-		// initGeom(objDir, "/plants/plant1.obj", P1);
 		initGeom(objDir, "/cube.obj", cube);
-		initGeom(objDir, "/SmoothSphere.obj", SmoothSphere);
+		initGeom(objDir, "/pawn.obj", pawn);
+		initGeom(objDir, "/rook.obj", rook);
+		initGeom(objDir, "/knight.obj", knight);
+		initGeom(objDir, "/bishop.obj", bishop);
+		initGeom(objDir, "/king.obj", king);
+		initGeom(objDir, "/queen.obj", queen);
 		
 	}
 
@@ -869,7 +730,10 @@ public:
 
 		// View is identity - for now
 		View->pushMatrix();
-		View->translate(vec3(x, y, z));
+		View->rotate(-1, vec3(-1, 0, 0));
+		// View->rotate(-1+p, vec3(-1+l, m, o));
+		View->translate(vec3(0, -5, 4));
+		// View->translate(vec3(x, -5+y, 4+z));
 
 		// View->print();
 
@@ -904,16 +768,35 @@ public:
 							Model->pushMatrix();
 								string hold = getPieceShape(i, j);
 								switch (hold[0]){
-									case '6':
+									case 0:
+										shape = pawn;
+										break;
+									case 1:
+										shape = rook;
+										break;
+									case 2:
+										shape = knight;
+										break;
+									case 3:
+										shape = bishop;
+										break;
+									case 4:
+										shape = queen;
+										break;
+									case 5:
+										shape = king;
+										break;
+									case 6:
 										shape = cube;
 										break;
-									default:
-										shape = SmoothSphere;
 								};
 								if (shape != cube) {
 									Model->translate(vec3(0, 15, 0));
-									Model->scale(vec3(1, 1+5*(1*int(hold[0])), 1));
-									// Model->scale(vec3(1, 15+(1*int(hold[0])), 1));
+									Model->scale(vec3(1, 15, 1));
+									if(hold[1]) {
+										Model->rotate(3, vec3(0, 30, -10));
+									}
+									Model->rotate(-2, vec3(1, 0, 0));
 									SetMaterial(int(hold[1])+3);
 									glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(Model->topMatrix()));
 									shape->draw(prog);
@@ -936,38 +819,6 @@ public:
 
 	}
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

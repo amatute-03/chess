@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.7)
 
 # Name of the project
-project(P2B)
+project(Chess)
 
 # Use glob to get the list of all source files.
 file(GLOB_RECURSE SOURCES "src/*.cpp" "ext/*/*.cpp" "ext/glad/src/*.c")
@@ -80,6 +80,7 @@ if(WIN32)
 else()
   # Enable all pedantic warnings.
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic")
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic -shared")
 
   if(APPLE)
     # Add required frameworks for GLFW.
