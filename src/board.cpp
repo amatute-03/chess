@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <glad/glad.h>
 
@@ -8,21 +7,13 @@
 #include "MatrixStack.h"
 #include "WindowManager.h"
 
-// value_ptr for glm
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-
-
-
 
 #include <chrono>
 #include <thread>
 #include <stdio.h>
 #include "piece.h"
-
-
-
 
 using namespace std;
 using namespace glm;
@@ -47,7 +38,6 @@ extern "C" {
     void nodePopulation();
     void usePiece(Node* node);
 	void nodeCreation();
-	// Node* nodeCreation();
 	bool inPath(Node* node);
 	void movedPiece();
 	Node* getTL();
@@ -88,6 +78,9 @@ Node* getBR() {
 Node* getCURR() {
     return curr;
 }
+void setCURR(Node* n) {
+	curr = n;
+}
 Node* getSEL() {
     return selected;
 }
@@ -108,7 +101,6 @@ char sym[] = {'r', 'k', 'b', 'K', 'Q', 'b', 'k', 'r',
 int PieceSetUp = 0;
 
 void nodeCreation() {
-// Node* nodeCreation() {
 	Node* temp = new Node;
 	temp->landingSpot = false;
 
@@ -120,13 +112,9 @@ void nodeCreation() {
 		temp->pieceHeld->setPieceType(sym[PieceSetUp]);
 		temp->pieceHeld->setMoveType(pieceTypes[PieceSetUp++]);
 		temp->pieceHeld->setSide(row < 2 ? 1 : 0);
-		temp->pieceHeld->setPrefix("\033[2;47;35m");
-		temp->pieceHeld->setSuffix("\033[0m");
 	} 
 	else {
 		temp->piecePresent = false;
-		temp->pieceHeld->setPrefix("");
-		temp->pieceHeld->setSuffix("");
 	}
 
 	temp->xOffset = column;
@@ -176,8 +164,6 @@ void nodeCreation() {
 		column = 0;
 		++row;
 	}
-
-	// return temp;
 }
 
 void nodePopulation() {
@@ -191,14 +177,6 @@ void nodePopulation() {
 void usePiece(Node* node) {
 	node->piecePresent = true;
 }
-
-
-
-
-
-
-
-
 
 bool inPath(Node* node){
 	if(selected != NULL) {
@@ -250,10 +228,6 @@ bool inPath(Node* node){
 	return false;
 }
 
-
-
-
-
 void movedPiece() {
 	if(selected == curr) {
 		return;
@@ -264,10 +238,6 @@ void movedPiece() {
 	selected->pieceHeld = hold;
 	selected->piecePresent = false;
 }
-
-
-
-
 
 void printMap() {
 	Node* temp = topLeft;
@@ -377,7 +347,7 @@ Node * moveHelperRET(int m, Node * n) {
 
 
 string getPieceShape(int i, int j) {
-	string out = "  ";
+	string out = "     ";
 	Node * helper = topLeft;
 	for(int a = 0; a < i; ++a) {
 		helper = helper->right;
@@ -385,9 +355,28 @@ string getPieceShape(int i, int j) {
 	for(int b = 0; b < j; ++b) {
 		helper = helper->down;
 	}
+
+	if(helper == curr) {
+		out[2] = char(1);
+	} else {
+		out[2] = char(0);
+	}
+
+	if(helper == selected) {
+		out[3] = char(1);
+	} else {
+		out[3] = char(0);
+	}
+
+	if(inPath(helper)) {
+		out[4] = char(1);
+	} else {
+		out[4] = char(0);
+	}
+
 	if (helper->piecePresent == 0) {
-		out[0] = '6';
-		out[1] = '0';
+		out[0] = char(6);
+		out[1] = char(0);
 		return out;
 	}
 	out[0] = char(helper->pieceHeld->getMoveVal());
@@ -409,12 +398,10 @@ public:
 	// Shape to be used (from obj file)
 	shared_ptr<Shape> shape;
 	shared_ptr<Shape> pawn, rook, knight, bishop, king, queen;
-	shared_ptr<Shape> cube;
+	shared_ptr<Shape> cube, SmoothSphere;
 
 	Node * playerA1 = nullptr;
-	// Node * playerA2 = nullptr;
 	Node * playerB1 = nullptr;
-	// Node * playerB2 = nullptr;
 
 	// Contains vertex information for OpenGL
 	GLuint VertexArrayID;
@@ -428,7 +415,7 @@ public:
 
 	bool animate = false;
 	float animRot = 0;
-	int colorMode = 0;
+	int colorMode = 1;
 
 
 	float x = 0, y = 0, z = 0, l = 0, m = 0, o = 0, p = 0;
@@ -441,6 +428,7 @@ public:
 		}
 
 		if(key == GLFW_KEY_W && action == GLFW_RELEASE) {
+		// if(key == GLFW_KEY_W && (action == GLFW_RELEASE || action == GLFW_PRESS)) {
 			cout << "\033[2J\033[1;1H";
 			if(turn) {
 				playerA1 = moveHelperRET(1, playerA1);
@@ -453,6 +441,7 @@ public:
 			}
 		}
 		if(key == GLFW_KEY_A && action == GLFW_RELEASE) {
+		// if(key == GLFW_KEY_A && (action == GLFW_RELEASE || action == GLFW_PRESS)) {
 			cout << "\033[2J\033[1;1H";
 			if(turn) {
 				playerA1 = moveHelperRET(3, playerA1);
@@ -465,6 +454,7 @@ public:
 			}
 		}
 		if(key == GLFW_KEY_S && action == GLFW_RELEASE) {
+		// if(key == GLFW_KEY_S && (action == GLFW_RELEASE || action == GLFW_PRESS)) {
 			cout << "\033[2J\033[1;1H";
 			if(turn) {
 				playerA1 = moveHelperRET(2, playerA1);
@@ -477,6 +467,7 @@ public:
 			}
 		}
 		if(key == GLFW_KEY_D && action == GLFW_RELEASE) {
+		// if(key == GLFW_KEY_D && (action == GLFW_RELEASE || action == GLFW_PRESS)) {
 			cout << "\033[2J\033[1;1H";
 			if(turn) {
 				playerA1 = moveHelperRET(4, playerA1);
@@ -522,6 +513,10 @@ public:
 			printMap();
 		}
 
+		if(key == GLFW_KEY_0 && action == GLFW_RELEASE) {
+			colorMode = colorMode < 1 ? ++colorMode : 0;
+		}
+
 
 		
 		if(key == GLFW_KEY_G && action == GLFW_RELEASE) {
@@ -559,7 +554,7 @@ public:
 		if(key == GLFW_KEY_SEMICOLON && action == GLFW_RELEASE) {
 			++o;
 		}
-		if(key == GLFW_KEY_BACKSLASH && action == GLFW_RELEASE) {
+		if(key == GLFW_KEY_SLASH && action == GLFW_RELEASE) {
 			--o;
 		}
 		if(key == GLFW_KEY_LEFT_BRACKET && action == GLFW_RELEASE) {
@@ -568,7 +563,9 @@ public:
 		if(key == GLFW_KEY_RIGHT_BRACKET && action == GLFW_RELEASE) {
 			--p;
 		}
-
+		if(key == GLFW_KEY_0 && action == GLFW_RELEASE) {
+			x = y = z = l = m = o = p = 0;
+		}
 		if(key == GLFW_KEY_ENTER && action == GLFW_RELEASE) {
 			cout << "x is: " << x << endl; 
 			cout << "y is: " << y << endl; 
@@ -584,6 +581,9 @@ public:
 		}
 		if (key == GLFW_KEY_Z && action == GLFW_RELEASE) {
 			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		}
+		if(key == GLFW_KEY_1 && action == GLFW_RELEASE) {
+			animate = !animate;
 		}
 	}
 
@@ -608,7 +608,7 @@ public:
 		GLSL::checkVersion();
 
 		// Set background color.
-		glClearColor(0.90f, .53f, .49f, 0.81f); // 135, 125, 206
+		glClearColor(0.90f, .53f, .49f, 0.81f);
 		// Enable z-buffer test.
 		glEnable(GL_DEPTH_TEST);
 
@@ -637,11 +637,8 @@ public:
 		playerB1 = getBR();
 		
 		cout << "\033[2J\033[1;1H";
-		curr = turn ? playerA1 : playerB1;
+		setCURR(turn ? playerA1 : playerB1);
 		printMap();
-		// nodeDataPrintout(turn ? playerA1 : playerB1);
-		// nodeDataPrintout(playerA1);
-		// nodeDataPrintout(playerB1);
 	}
 
 	// changed into a helper function to help loading all the objects used in the program
@@ -662,47 +659,73 @@ public:
 		initGeom(objDir, "/bishop.obj", bishop);
 		initGeom(objDir, "/king.obj", king);
 		initGeom(objDir, "/queen.obj", queen);
+		initGeom(objDir, "/SmoothSphere.obj", SmoothSphere);
 		
+	}
+
+	void setShape(int n) {
+		switch (n){
+			case 0:
+				shape = pawn;
+				break;
+			case 1:
+				shape = rook;
+				break;
+			case 2:
+				shape = knight;
+				break;
+			case 3:
+				shape = bishop;
+				break;
+			case 4:
+				shape = queen;
+				break;
+			case 5:
+				shape = king;
+				break;
+			case 6:
+				shape = cube;
+				break;
+		};
 	}
 
 	void SetMaterial(int i) {
 		prog->bind();
 		switch (i) {
-    		case 0: //green
-    			glUniform3f(prog->getUniform("MatAmb"), 0.00, 0.70, 0.50);
-    			break;
-    		case 1: // flat grey
-    			glUniform3f(prog->getUniform("MatAmb"), 0.13, 0.13, 0.13);
-    			break;
-    		case 2: //yellow
-    			glUniform3f(prog->getUniform("MatAmb"), 0.90, 0.90, 0.00);
-    			break;
-			case 3: //red
-				glUniform3f(prog->getUniform("MatAmb"), 0.90, 0.00, 0.00);
+			case 0: // white
+    			glUniform3f(prog->getUniform("MatAmb"), 1, 1, 1);
 				break;
-			case 4: //dark green
-				glUniform3f(prog->getUniform("MatAmb"), 0.10, 0.30, 0.10);
+			case 1: // black
+    			glUniform3f(prog->getUniform("MatAmb"), 0, 0, 0);
 				break;
-			case 5: //light gray 1
-				glUniform3f(prog->getUniform("MatAmb"), 0.3, 0.3, 0.3);
-				break;
-			case 6: //light gray 2
-				glUniform3f(prog->getUniform("MatAmb"), 0.45, 0.45, 0.45);
-				break;
-			case 7: // dark green
-				glUniform3f(prog->getUniform("MatAmb"), 0.00, 0.35, 0.20);
-				break;
-			case 8: // blue
+			case 2: // player2 color
 				glUniform3f(prog->getUniform("MatAmb"), 0.09, 0.38, 0.56);
 				break;
-			case 9: // gray-yellow
-    			glUniform3f(prog->getUniform("MatAmb"), 0.40, 0.45, 0.30);
-			case 10: // white
-    			glUniform3f(prog->getUniform("MatAmb"), 1, 1, 1);
-			case 11: // black
-    			glUniform3f(prog->getUniform("MatAmb"), 0, 0, 0);
-
-  		}
+			case 3: // player1 color
+				glUniform3f(prog->getUniform("MatAmb"), 0.25, 0.05, 0.40);
+				break;
+			case 4: // gray 1
+				glUniform3f(prog->getUniform("MatAmb"), 0.45, 0.45, 0.45);
+				break;
+			case 5: // gray 2
+				glUniform3f(prog->getUniform("MatAmb"), 0.3, 0.3, 0.3);
+				break;
+			case 6: // yellow for selected spot when not current spot
+				glUniform3f(prog->getUniform("MatAmb"), 1, 1, 0);
+				break;
+			case 7:	// green for current spot chosen to move to
+				glUniform3f(prog->getUniform("MatAmb"), 0, 1, 0);
+				break;
+			case 8: // cyan for current spot when selected
+				glUniform3f(prog->getUniform("MatAmb"), 0, 1, 1);
+				break;
+			case 9: // magenta for possible options to choose from
+				glUniform3f(prog->getUniform("MatAmb"), 1, 0, 1);
+				break;
+			case 10: // red for a bad move choice when selected
+				glUniform3f(prog->getUniform("MatAmb"), 1, 0, 0);
+				break;
+		}
 	}
 
 
@@ -730,10 +753,13 @@ public:
 
 		// View is identity - for now
 		View->pushMatrix();
-		View->rotate(-1, vec3(-1, 0, 0));
-		// View->rotate(-1+p, vec3(-1+l, m, o));
-		View->translate(vec3(0, -5, 4));
-		// View->translate(vec3(x, -5+y, 4+z));
+		// View->rotate(-1, vec3(-1, 0, 0));
+		// // View->rotate(-1+p, vec3(-1+l, m, o));
+		// View->translate(vec3(0, -5, 4));
+
+		// View->translate(vec3(cos(animRot)*x, 0, sin(animRot)*x));
+		// View->rotate(2+p, vec3(animRot+l, 0, animRot+l));
+		// // View->translate(vec3(x, -5+y, 4+z));
 
 		// View->print();
 
@@ -742,13 +768,16 @@ public:
 		glUniformMatrix4fv(prog->getUniform("P"), 1, GL_FALSE, value_ptr(Projection->topMatrix()));
 		glUniformMatrix4fv(prog->getUniform("V"), 1, GL_FALSE, value_ptr(View->topMatrix()));
 
-		glUniform3f(prog->getUniform("LightDir"), 2, 1.5, 0);	// used for shading in one mode
+		glUniform3f(prog->getUniform("LightDir"), 6, 2, -1);	// used for shading in one mode
+		// glUniform3f(prog->getUniform("LightDir"), 6+x, 2+y, -1+z);	// used for shading in one mode
+		// glUniform3f(prog->getUniform("LightDir"), 2+x, -6+y, z);	// used for shading in one mode
+		// glUniform3f(prog->getUniform("LightDir"), 2, 1.5, 0);	// used for shading in one mode
 		glUniform1i(prog->getUniform("colorMode"), colorMode);	// used to switch colors around 
 		
 		glUniform3f(prog->getUniform("lightP"), 1, 1, 1);
 		// glUniform3f(prog->getUniform("lightP"), lightTrans+2, 3, 4);
 
-		// if (animate) animRot += 0.025;
+		if (animate) animRot += 0.025;
 
 		Model->pushMatrix();
 			Model->rotate(gRot, vec3(0, 1, 0));
@@ -758,50 +787,64 @@ public:
 				shape = cube;
 				for (int i = 0; i < 8; i++) {
 					for (int j = 0; j < 8; j++) {
+						string Val0Sid1Cur2Sel3Pat4 = getPieceShape(i, j);
+
 						Model->pushMatrix();
 							Model->translate(vec3((-2.625+(2.0/(2.678125))*i), -2, -5+gTrans-((2.0/(2.678125))*(8-j))));
+							// Model->translate(vec3((-2.625+(2.0/(2.678125))*i)+x, -2+y, -5+gTrans-((2.0/(2.678125))*(8-j))+z));
 							Model->scale(vec3(0.375, 0.025, 0.375));
-							SetMaterial((10+(i+j))%2);
+							if (Val0Sid1Cur2Sel3Pat4[2] && Val0Sid1Cur2Sel3Pat4[3]) SetMaterial(8);
+							else if (Val0Sid1Cur2Sel3Pat4[4] && Val0Sid1Cur2Sel3Pat4[2]) SetMaterial(7);
+							else if (Val0Sid1Cur2Sel3Pat4[4]) SetMaterial(9);
+							else if (Val0Sid1Cur2Sel3Pat4[3]) SetMaterial(6);
+							else if (Val0Sid1Cur2Sel3Pat4[2] && !getSEL()) SetMaterial(8);
+							else if (Val0Sid1Cur2Sel3Pat4[2]) SetMaterial(10);
+							else SetMaterial(((i+j)%2));
+
 							glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(Model->topMatrix()));
 							shape->draw(prog);
 
 							Model->pushMatrix();
-								string hold = getPieceShape(i, j);
-								switch (hold[0]){
-									case 0:
-										shape = pawn;
-										break;
-									case 1:
-										shape = rook;
-										break;
-									case 2:
-										shape = knight;
-										break;
-									case 3:
-										shape = bishop;
-										break;
-									case 4:
-										shape = queen;
-										break;
-									case 5:
-										shape = king;
-										break;
-									case 6:
-										shape = cube;
-										break;
-								};
-								if (shape != cube) {
+								setShape(Val0Sid1Cur2Sel3Pat4[0]);
+								if (Val0Sid1Cur2Sel3Pat4[0] < 6) {
 									Model->translate(vec3(0, 15, 0));
-									Model->scale(vec3(1, 15, 1));
-									if(hold[1]) {
-										Model->rotate(3, vec3(0, 30, -10));
+									if(Val0Sid1Cur2Sel3Pat4[2] || Val0Sid1Cur2Sel3Pat4[3]) {
+										Model->translate(vec3(0, 30, 0));
 									}
-									Model->rotate(-2, vec3(1, 0, 0));
-									SetMaterial(int(hold[1])+3);
+									if(shape != pawn && shape != rook) {
+										Model->scale(vec3(1.25, 1.25, 1.25));
+										Model->translate(vec3(0, 2, 0));
+									}
+									Model->scale(vec3(1, 15, 1));
+									if(Val0Sid1Cur2Sel3Pat4[1]) {
+										Model->rotate(3, vec3(0, 30, 0));		// rotates opposing side to face right direction
+										// Model->rotate(3+x, vec3(0+y, 30+z, 0+l));		// rotates opposing side to face right direction
+									}
+									Model->rotate(-1.6, vec3(1, 0, 0));
+									SetMaterial(2 + int(Val0Sid1Cur2Sel3Pat4[1]) + 2*Val0Sid1Cur2Sel3Pat4[2]);
 									glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(Model->topMatrix()));
 									shape->draw(prog);
 									shape = cube;
 								}
+
+								if(getSEL() && Val0Sid1Cur2Sel3Pat4[2]) {
+									setShape(getSEL()->pieceHeld->getMoveVal());
+									if (Val0Sid1Cur2Sel3Pat4[0] < 6) {
+										Model->translate(vec3(0, 0, 4));
+									} else {
+										Model->scale(vec3(1, 15, 1));
+										Model->translate(vec3(0, 6, 0));
+										Model->rotate(-2, vec3(1, 0, 0));
+									}
+									Model->scale(vec3(0.6, 0.6, 0.6));
+									if (Val0Sid1Cur2Sel3Pat4[4]) SetMaterial(7);
+									else SetMaterial(10);
+									glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(Model->topMatrix()));
+									shape->draw(prog);
+									setShape(6);
+								}
+
+
 								
 							Model->popMatrix();
 						Model->popMatrix();
@@ -828,7 +871,7 @@ int main(int argc, char ** argv) {
 	Application *application = new Application();
 	
 	WindowManager *windowManager = new WindowManager();
-	windowManager->init(600, 600);
+	windowManager->init(800, 800);
 	// windowManager->init(1280, 800);
 	windowManager->setEventCallbacks(application);
 	application->windowManager = windowManager;

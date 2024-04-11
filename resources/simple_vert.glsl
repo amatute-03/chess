@@ -11,6 +11,6 @@ void main()
 {
 	gl_Position = P * V * M * vertPos;
 	fragNor = (V*M * vec4(vertNor, 0.0)).xyz;
-    // fragNor = cross(fragNor, lightP);
-    fragNor += lightP;
+	fragNor = cross(fragNor, lightP);
+	// fragNor += lightP;
 }

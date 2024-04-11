@@ -9,7 +9,6 @@ void piece::setPieceType(char type) {
 char piece::getPieceType() {
 	return this->pieceType;
 }
-// vector<vector<vector<string>>> movements;
 
 void piece::setMoveType(int type) {
 	this->moveType = type;
@@ -34,27 +33,10 @@ int piece::getSide() {
 	return this->side;
 }
 
-void piece::setPrefix(string pre){
-	this->prefix = pre;
-}
-string piece::getPrefix(){
-	return this->prefix;
-}
-void piece::setSuffix(string suf){
-	this->suffix = suf;
-}
-string piece::getSufix(){
-	return this->suffix;
-}
-
-
-
 char pieceType = '-';
 int moveType;
 string prefix;
 string suffix;
-
-// change the movements to vector<vector<vector<string>>> to prevent highlights of invalid moves
 
 void piece::initMovements() {
 
@@ -113,55 +95,4 @@ void piece::initMovements() {
 		{"3"},
 		{"13"}
 	});
-
-
-
-
-
-	// movements.resize(6, vector<vector<string>>());
-	// movements[0].resize(8, vector<string>(7, ""));
-	// movements[1].resize(8, vector<string>(7, ""));
-	// movements[2].resize(8, vector<string>(7, ""));
-	// movements[3].resize(8, vector<string>(7, ""));
-	// movements[4].resize(8, vector<string>(7, ""));
-	// movements[5].resize(8, vector<string>(7, ""));
-
-	// movements[0][0] = {"1", "2", "13", "14", "23", "24"};
-
-	// movements[1][0] = {"1", "11", "111", "1111", "11111", "111111", "1111111"};
-	// movements[1][1] = {"4", "44", "444", "4444", "44444", "444444", "4444444"};
-	// movements[1][2] = {"2", "22", "222", "2222", "22222", "222222", "2222222"};
-	// movements[1][3] = {"3", "33", "333", "3333", "33333", "333333", "3333333"};
-
-	// movements[2][0] = {"114"};
-	// movements[2][1] = {"441"};
-	// movements[2][2] = {"442"};
-	// movements[2][3] = {"224"};
-	// movements[2][4] = {"223"};
-	// movements[2][5] = {"332"};
-	// movements[2][6] = {"331"};
-	// movements[2][7] = {"113"};
-
-	// movements[3][0] = {"14", "1144", "111444", "11114444", "1111144444", "111111444444", "11111114444444"};
-	// movements[3][1] = {"24", "2244", "222444", "22224444", "2222244444", "222222444444", "22222224444444"};
-	// movements[3][2] = {"23", "2233", "222333", "22223333", "2222233333", "222222333333", "22222223333333"};
-	// movements[3][3] = {"13", "1133", "111333", "11113333", "1111133333", "111111333333", "11111113333333"};
-
-	// movements[4][0] = {"1", "11", "111", "1111", "11111", "111111", "1111111"};
-	// movements[4][1] = {"14", "1144", "111444", "11114444", "1111144444", "111111444444", "11111114444444"};
-	// movements[4][2] = {"4", "44", "444", "4444", "44444", "444444", "4444444"};
-	// movements[4][3] = {"24", "2244", "222444", "22224444", "2222244444", "222222444444", "22222224444444"};
-	// movements[4][4] = {"2", "22", "222", "2222", "22222", "222222", "2222222"};
-	// movements[4][5] = {"23", "2233", "222333", "22223333", "2222233333", "222222333333", "22222223333333"};
-	// movements[4][6] = {"3", "33", "333", "3333", "33333", "333333", "3333333"};
-	// movements[4][7] = {"13", "1133", "111333", "11113333", "1111133333", "111111333333", "11111113333333"};
-
-	// movements[5][0] = {"1"};
-	// movements[5][1] = {"14"};
-	// movements[5][2] = {"4"};
-	// movements[5][3] = {"24"};
-	// movements[5][4] = {"2"};
-	// movements[5][5] = {"23"};
-	// movements[5][6] = {"3"};
-	// movements[5][7] = {"13"};
 }
