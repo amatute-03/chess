@@ -326,6 +326,9 @@ Node * moveHelperRET(int m, Node * n) {
 				if(selected == NULL && n->piecePresent && (n->pieceHeld->getSide() == turn)) {
 					selected = n;
 				}
+				else if(selected != NULL && n == selected) {
+					selected = NULL;
+				}
 				else if(selected != NULL && n->landingSpot) {
 					movedPiece();
 					selected = NULL;
@@ -420,6 +423,13 @@ public:
 
 	float x = 0, y = 0, z = 0, l = 0, m = 0, o = 0, p = 0;
 
+	void moveAction(int key, int action, int n) {
+		cout << "\033[2J\033[1;1H";
+		(turn ? playerA1 : playerB1) = moveHelperRET(n, (turn ? playerA1 : playerB1));
+		curr = (turn ? playerA1 : playerB1);
+		printMap();
+	}
+
 
 	void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
@@ -427,61 +437,22 @@ public:
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 
-		if(key == GLFW_KEY_W && action == GLFW_RELEASE) {
-		// if(key == GLFW_KEY_W && (action == GLFW_RELEASE || action == GLFW_PRESS)) {
-			cout << "\033[2J\033[1;1H";
-			if(turn) {
-				playerA1 = moveHelperRET(1, playerA1);
-				curr = playerA1;
-				printMap();
-			} else {
-				playerB1 = moveHelperRET(1, playerB1);
-				curr = playerB1;
-				printMap();
-			}
+		if(key == GLFW_KEY_W && action == GLFW_RELEASE) { // up
+			moveAction(key, action, 1);
 		}
-		if(key == GLFW_KEY_A && action == GLFW_RELEASE) {
-		// if(key == GLFW_KEY_A && (action == GLFW_RELEASE || action == GLFW_PRESS)) {
-			cout << "\033[2J\033[1;1H";
-			if(turn) {
-				playerA1 = moveHelperRET(3, playerA1);
-				curr = playerA1;
-				printMap();
-			} else {
-				playerB1 = moveHelperRET(3, playerB1);
-				curr = playerB1;
-				printMap();
-			}
+		if(key == GLFW_KEY_A && action == GLFW_RELEASE) { // left
+			moveAction(key, action, 3);
 		}
-		if(key == GLFW_KEY_S && action == GLFW_RELEASE) {
-		// if(key == GLFW_KEY_S && (action == GLFW_RELEASE || action == GLFW_PRESS)) {
-			cout << "\033[2J\033[1;1H";
-			if(turn) {
-				playerA1 = moveHelperRET(2, playerA1);
-				curr = playerA1;
-				printMap();
-			} else {
-				playerB1 = moveHelperRET(2, playerB1);
-				curr = playerB1;
-				printMap();
-			}
+		if(key == GLFW_KEY_S && action == GLFW_RELEASE) { // down
+			moveAction(key, action, 2);
 		}
-		if(key == GLFW_KEY_D && action == GLFW_RELEASE) {
-		// if(key == GLFW_KEY_D && (action == GLFW_RELEASE || action == GLFW_PRESS)) {
-			cout << "\033[2J\033[1;1H";
-			if(turn) {
-				playerA1 = moveHelperRET(4, playerA1);
-				curr = playerA1;
-				printMap();
-			} else {
-				playerB1 = moveHelperRET(4, playerB1);
-				curr = playerB1;
-				printMap();
-			}
+		if(key == GLFW_KEY_D && action == GLFW_RELEASE) { // right
+			moveAction(key, action, 4);
 		}
 
 
-		if(key == GLFW_KEY_O && action == GLFW_RELEASE) {
+		if(key == GLFW_KEY_O && action == GLFW_RELEASE) { // choice
+			// moveAction(key, action, 5);
 			cout << "\033[2J\033[1;1H";
 			if(turn) {
 				playerA1 = moveHelperRET(5, playerA1);
@@ -493,18 +464,11 @@ public:
 				printMap();
 			}
 		}
-		if(key == GLFW_KEY_P && action == GLFW_RELEASE) {
-			cout << "\033[2J\033[1;1H";
-			if(turn) {
-				playerA1 = moveHelperRET(6, playerA1);
-				curr = playerA1;
-				printMap();
-			} else {
-				playerB1 = moveHelperRET(6, playerB1);
-				curr = playerB1;
-				printMap();
-			}
+		if(key == GLFW_KEY_P && action == GLFW_RELEASE) { // release
+			moveAction(key, action, 6);
 		}
+
+
 
 		if(key == GLFW_KEY_SPACE && action == GLFW_RELEASE) {
 			turn = !turn;
@@ -753,6 +717,29 @@ public:
 
 		// View is identity - for now
 		View->pushMatrix();
+		View->rotate((cos(animRot/3)/sin(animRot/3))*(1+y)*(1+x)*animRot/(2+z), vec3(0, 1, 0));
+
+		// cout << (tan(sin(animRot/3)/cos(animRot/3)))*(180/3.14159265) << endl;
+
+
+
+		// View->rotate(1+x*animRot/5, vec3(0, (y*animRot), 0));
+
+
+
+		View->translate(vec3(8*cos(animRot/3), 0, 8*sin(animRot/3)));
+		
+		
+		
+		// View->translate(vec3(x*cos(animRot/3), 0, x*sin(animRot/3)));
+		// View->rotate(animRot/5, vec3(0, 1, 0));
+		View->translate(vec3(0.0115, 1, 8.353));
+		// View->translate(vec3(0.0115, 0+y, 8.353));
+		// View->translate(vec3(0.0115+(x/2000), 2+(y/200), 8.353+(z/500)));
+		// View->translate(vec3(0+x, 1+y, 8.375));
+		// View->translate(vec3(0+x, 1+y, 8.375+(z/32)));
+		// View->translate(vec3(x, y, z));
+		// View->translate(vec3(cos(animRot), 0, sin(animRot)));
 		// View->rotate(-1, vec3(-1, 0, 0));
 		// // View->rotate(-1+p, vec3(-1+l, m, o));
 		// View->translate(vec3(0, -5, 4));
@@ -777,7 +764,8 @@ public:
 		glUniform3f(prog->getUniform("lightP"), 1, 1, 1);
 		// glUniform3f(prog->getUniform("lightP"), lightTrans+2, 3, 4);
 
-		if (animate) animRot += 0.025;
+		if (animate) animRot += 0.01;
+		// if (animate) animRot += 0.025;
 
 		Model->pushMatrix();
 			Model->rotate(gRot, vec3(0, 1, 0));
@@ -805,8 +793,8 @@ public:
 							shape->draw(prog);
 
 							Model->pushMatrix();
-								setShape(Val0Sid1Cur2Sel3Pat4[0]);
 								if (Val0Sid1Cur2Sel3Pat4[0] < 6) {
+									setShape(Val0Sid1Cur2Sel3Pat4[0]);
 									Model->translate(vec3(0, 15, 0));
 									if(Val0Sid1Cur2Sel3Pat4[2] || Val0Sid1Cur2Sel3Pat4[3]) {
 										Model->translate(vec3(0, 30, 0));
@@ -824,7 +812,6 @@ public:
 									SetMaterial(2 + int(Val0Sid1Cur2Sel3Pat4[1]) + 2*Val0Sid1Cur2Sel3Pat4[2]);
 									glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(Model->topMatrix()));
 									shape->draw(prog);
-									shape = cube;
 								}
 
 								if(getSEL() && Val0Sid1Cur2Sel3Pat4[2]) {
@@ -835,16 +822,16 @@ public:
 										Model->scale(vec3(1, 15, 1));
 										Model->translate(vec3(0, 6, 0));
 										Model->rotate(-2, vec3(1, 0, 0));
+										Model->rotate(0.4, vec3(1, 0, 0));
 									}
 									Model->scale(vec3(0.6, 0.6, 0.6));
 									if (Val0Sid1Cur2Sel3Pat4[4]) SetMaterial(7);
+									else if (Val0Sid1Cur2Sel3Pat4[3] && Val0Sid1Cur2Sel3Pat4[2]) SetMaterial(6);
 									else SetMaterial(10);
 									glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(Model->topMatrix()));
 									shape->draw(prog);
-									setShape(6);
 								}
-
-
+								setShape(6);
 								
 							Model->popMatrix();
 						Model->popMatrix();
