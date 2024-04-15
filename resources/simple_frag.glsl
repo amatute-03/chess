@@ -14,7 +14,8 @@ void main()
     if (colorMode == 0) {
         color = vec4(normal, 1.0);
     }
-    else if (colorMode == 1) {
+    // else if (colorMode == 1) {
+    else {
         // Lambertian (diffuse) reflection
         float lambertian = max(dot(normal, lightDir), 0.0);
         vec3 lightColor = vec3(1.0, 1.0, 1.0);

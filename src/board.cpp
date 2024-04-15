@@ -15,6 +15,9 @@
 #include <stdio.h>
 #include "piece.h"
 
+
+#define PI 3.14159265359
+
 using namespace std;
 using namespace glm;
 
@@ -403,8 +406,8 @@ public:
 	shared_ptr<Shape> pawn, rook, knight, bishop, king, queen;
 	shared_ptr<Shape> cube, SmoothSphere;
 
-	Node * playerA1 = nullptr;
-	Node * playerB1 = nullptr;
+	Node * playerA = nullptr;
+	Node * playerB = nullptr;
 
 	// Contains vertex information for OpenGL
 	GLuint VertexArrayID;
@@ -419,14 +422,16 @@ public:
 	bool animate = false;
 	float animRot = 0;
 	int colorMode = 1;
+	bool turnAnimation = false;
+	float turnSwitchAnimation = 0;
 
 
 	float x = 0, y = 0, z = 0, l = 0, m = 0, o = 0, p = 0;
 
-	void moveAction(int key, int action, int n) {
+	void moveAction(int n) {
 		cout << "\033[2J\033[1;1H";
-		(turn ? playerA1 : playerB1) = moveHelperRET(n, (turn ? playerA1 : playerB1));
-		curr = (turn ? playerA1 : playerB1);
+		(turn ? playerA : playerB) = moveHelperRET(n, (turn ? playerA : playerB));
+		curr = (turn ? playerA : playerB);
 		printMap();
 	}
 
@@ -437,42 +442,70 @@ public:
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 
-		if(key == GLFW_KEY_W && action == GLFW_RELEASE) { // up
-			moveAction(key, action, 1);
+		if(key == GLFW_KEY_W && action == GLFW_RELEASE) {
+			if(!turnAnimation) {
+				if (turn) {
+					moveAction(2);	// down
+				} else {
+					moveAction(1);	// up
+				}
+			}
 		}
-		if(key == GLFW_KEY_A && action == GLFW_RELEASE) { // left
-			moveAction(key, action, 3);
+		if(key == GLFW_KEY_A && action == GLFW_RELEASE) {
+			if(!turnAnimation) {
+				if (turn) {
+					moveAction(4);	// right
+				} else {
+					moveAction(3);	// left
+				}
+			}
 		}
-		if(key == GLFW_KEY_S && action == GLFW_RELEASE) { // down
-			moveAction(key, action, 2);
+		if(key == GLFW_KEY_S && action == GLFW_RELEASE) {
+			if(!turnAnimation) {
+				if (turn) {
+					moveAction(1);	// up
+				} else {
+					moveAction(2);	// down
+				}
+			}
 		}
-		if(key == GLFW_KEY_D && action == GLFW_RELEASE) { // right
-			moveAction(key, action, 4);
+		if(key == GLFW_KEY_D && action == GLFW_RELEASE) {
+			if(!turnAnimation) {
+				if (turn) {
+					moveAction(3);	// left
+				} else {
+					moveAction(4);	// right
+				}
+			}
 		}
 
 
 		if(key == GLFW_KEY_O && action == GLFW_RELEASE) { // choice
-			// moveAction(key, action, 5);
+			
 			cout << "\033[2J\033[1;1H";
+			bool swap = turn;
+			
 			if(turn) {
-				playerA1 = moveHelperRET(5, playerA1);
-				curr = turn ? playerA1 : playerB1;
-				printMap();
+				playerA = moveHelperRET(5, playerA);
 			} else {
-				playerB1 = moveHelperRET(5, playerB1);
-				curr = turn ? playerA1 : playerB1;
-				printMap();
+				playerB = moveHelperRET(5, playerB);
 			}
+			
+			curr = turn ? playerA : playerB;
+			printMap();
+
+			if(swap != turn) turnAnimation = true;
 		}
 		if(key == GLFW_KEY_P && action == GLFW_RELEASE) { // release
-			moveAction(key, action, 6);
+			moveAction(6);
 		}
 
 
 
 		if(key == GLFW_KEY_SPACE && action == GLFW_RELEASE) {
 			turn = !turn;
-			curr = turn ? playerA1 : playerB1;
+			turnAnimation = true;
+			curr = turn ? playerA : playerB;
 			cout << "\033[2J\033[1;1H";
 			printMap();
 		}
@@ -481,6 +514,9 @@ public:
 			colorMode = colorMode < 1 ? ++colorMode : 0;
 		}
 
+		if(key == GLFW_KEY_2 && action == GLFW_RELEASE) {
+			turnAnimation = !turnAnimation;
+		}
 
 		
 		if(key == GLFW_KEY_G && action == GLFW_RELEASE) {
@@ -597,11 +633,11 @@ public:
 
 		nodePopulation();
 
-		playerA1 = getTL();
-		playerB1 = getBR();
+		playerA = getTL();
+		playerB = getBR();
 		
 		cout << "\033[2J\033[1;1H";
-		setCURR(turn ? playerA1 : playerB1);
+		setCURR(turn ? playerA : playerB);
 		printMap();
 	}
 
@@ -717,38 +753,30 @@ public:
 
 		// View is identity - for now
 		View->pushMatrix();
-		View->rotate((cos(animRot/3)/sin(animRot/3))*(1+y)*(1+x)*animRot/(2+z), vec3(0, 1, 0));
 
-		// cout << (tan(sin(animRot/3)/cos(animRot/3)))*(180/3.14159265) << endl;
+		// makes view face down like person looking at board
+		View->rotate(PI/(0.12), vec3(1, 0, 0));
+		View->translate(vec3(0, -6, 0));
+
+		// causes the view to rotate around the board after a turn swap is caused
+		View->rotate(PI*(1+turnSwitchAnimation), vec3(0, 1, 0));
+		View->translate(vec3(4*cos(PI*(1+turnSwitchAnimation-0.5)), 0, 4*sin(PI*(1+turnSwitchAnimation-0.5))));
+
+		if(turnAnimation) {
+			turnSwitchAnimation += 0.01;
+			if((fabs(turnSwitchAnimation - 1.0) < 0.001)) {
+				turnAnimation = !turnAnimation;
+			}
+			else if(fabs(turnSwitchAnimation - 2.0) < 0.001) {
+				turnAnimation = !turnAnimation;
+				turnSwitchAnimation = 0;
+			}
+
+		}
 
 
 
-		// View->rotate(1+x*animRot/5, vec3(0, (y*animRot), 0));
-
-
-
-		View->translate(vec3(8*cos(animRot/3), 0, 8*sin(animRot/3)));
-		
-		
-		
-		// View->translate(vec3(x*cos(animRot/3), 0, x*sin(animRot/3)));
-		// View->rotate(animRot/5, vec3(0, 1, 0));
 		View->translate(vec3(0.0115, 1, 8.353));
-		// View->translate(vec3(0.0115, 0+y, 8.353));
-		// View->translate(vec3(0.0115+(x/2000), 2+(y/200), 8.353+(z/500)));
-		// View->translate(vec3(0+x, 1+y, 8.375));
-		// View->translate(vec3(0+x, 1+y, 8.375+(z/32)));
-		// View->translate(vec3(x, y, z));
-		// View->translate(vec3(cos(animRot), 0, sin(animRot)));
-		// View->rotate(-1, vec3(-1, 0, 0));
-		// // View->rotate(-1+p, vec3(-1+l, m, o));
-		// View->translate(vec3(0, -5, 4));
-
-		// View->translate(vec3(cos(animRot)*x, 0, sin(animRot)*x));
-		// View->rotate(2+p, vec3(animRot+l, 0, animRot+l));
-		// // View->translate(vec3(x, -5+y, 4+z));
-
-		// View->print();
 
 		// Draw a stack of cubes with indiviudal transforms
 		prog->bind();
@@ -761,10 +789,12 @@ public:
 		// glUniform3f(prog->getUniform("LightDir"), 2, 1.5, 0);	// used for shading in one mode
 		glUniform1i(prog->getUniform("colorMode"), colorMode);	// used to switch colors around 
 		
-		glUniform3f(prog->getUniform("lightP"), 1, 1, 1);
+		glUniform3f(prog->getUniform("lightP"), 2, 0, 3);
+		// glUniform3f(prog->getUniform("lightP"), 2+x, 0+y, 3+z);
 		// glUniform3f(prog->getUniform("lightP"), lightTrans+2, 3, 4);
 
-		if (animate) animRot += 0.01;
+
+		// if (animate) animRot += 0.005;
 		// if (animate) animRot += 0.025;
 
 		Model->pushMatrix();
@@ -779,7 +809,6 @@ public:
 
 						Model->pushMatrix();
 							Model->translate(vec3((-2.625+(2.0/(2.678125))*i), -2, -5+gTrans-((2.0/(2.678125))*(8-j))));
-							// Model->translate(vec3((-2.625+(2.0/(2.678125))*i)+x, -2+y, -5+gTrans-((2.0/(2.678125))*(8-j))+z));
 							Model->scale(vec3(0.375, 0.025, 0.375));
 							if (Val0Sid1Cur2Sel3Pat4[2] && Val0Sid1Cur2Sel3Pat4[3]) SetMaterial(8);
 							else if (Val0Sid1Cur2Sel3Pat4[4] && Val0Sid1Cur2Sel3Pat4[2]) SetMaterial(7);
@@ -806,7 +835,6 @@ public:
 									Model->scale(vec3(1, 15, 1));
 									if(Val0Sid1Cur2Sel3Pat4[1]) {
 										Model->rotate(3, vec3(0, 30, 0));		// rotates opposing side to face right direction
-										// Model->rotate(3+x, vec3(0+y, 30+z, 0+l));		// rotates opposing side to face right direction
 									}
 									Model->rotate(-1.6, vec3(1, 0, 0));
 									SetMaterial(2 + int(Val0Sid1Cur2Sel3Pat4[1]) + 2*Val0Sid1Cur2Sel3Pat4[2]);
