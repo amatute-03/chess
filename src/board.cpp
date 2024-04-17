@@ -25,7 +25,7 @@ using namespace glm;
 struct Node {
 	char info;
 	bool piecePresent;
-	piece *pieceHeld = new piece;
+	piece *pieceHeld = nullptr;
 
 	int xOffset;
 	int yOffset;
@@ -37,9 +37,8 @@ struct Node {
 };
 
 extern "C" {
-    void printMap();
-    void nodePopulation();
-    void usePiece(Node* node);
+	void printMap();
+	void nodePopulation();
 	void nodeCreation();
 	bool inPath(Node* node);
 	void movedPiece();
@@ -53,17 +52,20 @@ extern "C" {
 }
 
 
-Node* topLeft;
-Node* topRight;
-Node* bottomLeft;
-Node* bottomRight;
+Node* topLeft = nullptr;
+Node* topRight = nullptr;
+Node* bottomLeft = nullptr;
+Node* bottomRight = nullptr;
+
+Node* kingA = nullptr;
+Node* kingB = nullptr;
 
 bool turn = true;
 
 int column = 0, row = 0;
 
-Node* curr;
-Node* selected;
+Node* curr = nullptr;
+Node* selected = nullptr;
 
 
 Node* getTL() {
@@ -111,7 +113,18 @@ void nodeCreation() {
 	temp->info = checks[BISA];
 
 	if(row < 2  || row > 5) {
+		temp->pieceHeld = new piece();
+		if(PieceSetUp == 3) {
+			kingA = temp;
+		} else if(PieceSetUp == 27) {
+			kingB = temp;
+		}
 		temp->piecePresent = true;
+		if(PieceSetUp > 7 && PieceSetUp < 24) {
+			temp->pieceHeld->setPawnDoubleStep(true);
+		} else {
+			temp->pieceHeld->setPawnDoubleStep(false);
+		}
 		temp->pieceHeld->setPieceType(sym[PieceSetUp]);
 		temp->pieceHeld->setMoveType(pieceTypes[PieceSetUp++]);
 		temp->pieceHeld->setSide(row < 2 ? 1 : 0);
@@ -177,9 +190,74 @@ void nodePopulation() {
 	}
 }
 
-void usePiece(Node* node) {
-	node->piecePresent = true;
+piece* enPassantPawn = nullptr;
+Node* enPassantRem = nullptr;
+
+bool pawnChecks(string movDir, Node* pawn) {
+	if((movDir == "11" || movDir == "22") && !pawn->pieceHeld->getPawnDoubleStep()) {
+		return true;
+	} else if((movDir == "1" || movDir == "13" || movDir == "14" || movDir == "11") && pawn->pieceHeld->getSide() == 1) {
+		return true;
+	} else if((movDir == "2" || movDir == "23" || movDir == "24" || movDir == "22") && pawn->pieceHeld->getSide() == 0) {
+		return true;
+	} else if(pawn->pieceHeld->getSide() == 1) {
+
+		Node * hold = pawn;
+		if(hold->down) {
+
+			if(movDir == "2" && hold->down->piecePresent) {
+				return true;
+			}
+			if(movDir == "23" && hold->left && hold->left->piecePresent && hold->left->pieceHeld == enPassantPawn) {
+				enPassantRem = hold->left;
+				return false;
+			}
+			if(movDir == "24" && hold->right && hold->right->piecePresent && hold->right->pieceHeld == enPassantPawn) {
+				enPassantRem = hold->right;
+				return false;
+			}
+
+			hold = hold->down;
+			if(movDir == "23" && hold->left && !hold->left->piecePresent) {
+				return true;
+			} else if(movDir == "24" && hold->right && !hold->right->piecePresent) {
+				return true;
+			}
+		} else {
+			return true;
+		}
+
+	} else if(pawn->pieceHeld->getSide() == 0) {
+
+		Node * hold = pawn;
+		if(hold->up) {
+
+			if(movDir == "1" && hold->up->piecePresent) {
+				return true;
+			}
+			if(movDir == "13" && hold->left && hold->left->piecePresent && hold->left->pieceHeld == enPassantPawn) {
+				enPassantRem = hold->left;
+				return false;
+			}
+			if(movDir == "14" && hold->right && hold->right->piecePresent && hold->right->pieceHeld == enPassantPawn) {
+				enPassantRem = hold->right;
+				return false;
+			}
+
+			hold = hold->up;
+			if(movDir == "13" && hold->left && !hold->left->piecePresent) {
+				return true;
+			} else if(movDir == "14" && hold->right && !hold->right->piecePresent) {
+				return true;
+			}
+		} else {
+			return true;
+		}
+
+	}
+	return false;
 }
+
 
 bool inPath(Node* node){
 	if(selected != NULL) {
@@ -189,13 +267,18 @@ bool inPath(Node* node){
 		if(selected->piecePresent) {
 			Node* hold = selected;
 			vector<vector<string>> dir = selected->pieceHeld->getMoveType();
-			for(vector<string> b : dir) {
-				for(string a : b) {
-					for(int i = 0; i < a.size(); ++i) {
+			for(vector<string> directions : dir) {
+				for(string distance : directions) {
+
+					if(selected->pieceHeld->getMoveVal() == 0 && pawnChecks(distance, selected)) {
+						continue;
+					}
+
+					for(int i = 0; i < distance.size(); ++i) {
 						if(hold == NULL) {
 							break;
 						}
-						switch (int(a.at(i) - 48)) {
+						switch (int(distance.at(i) - 48)) {
 							case 1: {
 								hold = hold->up;
 								break;
@@ -235,10 +318,72 @@ void movedPiece() {
 	if(selected == curr) {
 		return;
 	}
-	piece* hold = curr->pieceHeld;
+
+	if(enPassantPawn) {
+		if(selected->pieceHeld->getMoveVal() == 0) {
+			if(selected->pieceHeld->getSide() == 0) {
+				if(selected->left && selected->left->piecePresent && selected->left->pieceHeld == enPassantPawn && selected->left->up == curr) {
+					curr->pieceHeld = enPassantPawn;
+					curr->piecePresent = true;
+					selected->left->pieceHeld = nullptr;
+					selected->left->piecePresent = false;
+				} else if(selected->right && selected->right->piecePresent && selected->right->pieceHeld == enPassantPawn && selected->right->up == curr) {
+					curr->pieceHeld = enPassantPawn;
+					curr->piecePresent = true;
+					selected->right->pieceHeld = nullptr;
+					selected->right->piecePresent = false;
+				}
+			} else if(selected->pieceHeld->getSide() == 1) {
+				if(selected->left && selected->left->piecePresent && selected->left->pieceHeld == enPassantPawn && selected->left->down == curr) {
+					curr->pieceHeld = enPassantPawn;
+					curr->piecePresent = true;
+					selected->left->pieceHeld = nullptr;
+					selected->left->piecePresent = false;
+				} else if(selected->right && selected->right->piecePresent && selected->right->pieceHeld == enPassantPawn && selected->right->down == curr) {
+					curr->pieceHeld = enPassantPawn;
+					curr->piecePresent = true;
+					selected->right->pieceHeld = nullptr;
+					selected->right->piecePresent = false;
+				}
+			}
+		}
+		enPassantPawn = nullptr;
+	}
+
+	if(selected->pieceHeld->getMoveVal() == 5) {
+		(selected->pieceHeld->getSide() ? kingA : kingB) = curr;
+	}
+	else if(selected->pieceHeld->getMoveVal() == 0) {
+		if(selected->pieceHeld->getPawnDoubleStep()) {
+
+			if(selected->pieceHeld->getSide() == 0 && selected->up->up == curr) {
+				Node* l = selected->up->up->left;
+				Node* r = selected->up->up->right;
+				if((l && l->piecePresent && l->pieceHeld->getMoveVal() == 0 && l->pieceHeld->getSide() == 1) 
+					|| (r && r->piecePresent && r->pieceHeld->getMoveVal() == 0 && r->pieceHeld->getSide() == 1)) {
+						enPassantPawn = selected->pieceHeld;
+				}
+			}
+
+			if(selected->pieceHeld->getSide() == 1 && selected->down->down == curr) {
+				Node* l = selected->down->down->left;
+				Node* r = selected->down->down->right;
+				if((l && l->piecePresent && l->pieceHeld->getMoveVal() == 0 && l->pieceHeld->getSide() == 0) 
+					|| (r && r->piecePresent && r->pieceHeld->getMoveVal() == 0 && r->pieceHeld->getSide() == 0)) {
+						enPassantPawn = selected->pieceHeld;
+				}
+			}
+			selected->pieceHeld->setPawnDoubleStep(false);
+		}
+	}
+	
+
+	if(curr->piecePresent) {
+		delete curr->pieceHeld;
+	}
 	curr->pieceHeld = selected->pieceHeld;
 	curr->piecePresent = true;
-	selected->pieceHeld = hold;
+	selected->pieceHeld = nullptr;
 	selected->piecePresent = false;
 }
 

@@ -11,10 +11,13 @@ class piece {
         vector<vector<string>> getMoveType();
         void setSide(int s);
         int getSide();
+        bool getPawnDoubleStep();
+        void setPawnDoubleStep(bool s);
     private:
         char pieceType;
         int moveType;
         int side;
         vector<vector<vector<string>>> movements;
+        bool pawnDoubleStep;
         void initMovements();
 };

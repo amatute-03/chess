@@ -33,16 +33,22 @@ int piece::getSide() {
 	return this->side;
 }
 
+bool piece::getPawnDoubleStep() {
+	return this->pawnDoubleStep;
+}
+
+void piece::setPawnDoubleStep(bool s) {
+	this->pawnDoubleStep = s;
+}
+
 char pieceType = '-';
 int moveType;
-string prefix;
-string suffix;
 
 void piece::initMovements() {
 
 	movements.push_back({
-		{"1"},
-		{"2"},
+		{"1", "11"},
+		{"2", "22"},
 		{"13"},
 		{"14"},
 		{"23"},
